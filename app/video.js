@@ -9,6 +9,7 @@ import {
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
+import { videos } from "../data/videos";
 
 const VideoScreen = () => {
   const [liked, setLiked] = useState(false);
@@ -17,6 +18,8 @@ const VideoScreen = () => {
   const heartColor = liked ? "red" : "white";
   const scaleValue = new Animated.Value(1);
   const videoRef = useRef(null);
+
+  const [currentVideo, setCurrentVideo] = useState(videos[0]);
 
   const handleHeartClick = () => {
     setLiked(!liked);
@@ -57,7 +60,7 @@ const VideoScreen = () => {
     <View style={styles.container}>
       <Video
         ref={videoRef}
-        source={{ uri: "https://www.w3schools.com/html/mov_bbb.mp4" }}
+        source={{ uri: currentVideo }}
         rate={1.0}
         volume={1.0}
         isMuted={false}
