@@ -19,9 +19,10 @@ const Layout = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "tomato",
+        tabBarActiveTintColor: "green",
         tabBarInactiveTintColor: "gray",
         tabBarShowLabel: false,
+        tabBarStyle: { backgroundColor: "#000" },
       })}
     >
       <Tabs.Screen name="index" />

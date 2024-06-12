@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Video } from "expo-av";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, AntDesign } from "@expo/vector-icons";
 
 const VideoScreen = () => {
   return (
@@ -18,10 +18,10 @@ const VideoScreen = () => {
       />
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button}>
-          <Ionicons name="heart" size={32} color="white" />
+          <AntDesign name="hearto" size={32} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
-          <Ionicons name="chatbubble" size={32} color="white" />
+          <Ionicons name="chatbubble-ellipses-outline" size={32} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
           <Ionicons name="share-social" size={32} color="white" />
