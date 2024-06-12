@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -8,12 +8,15 @@ import {
 } from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
+import { useFocusEffect } from "expo-router";
 
 const VideoScreen = () => {
   const [liked, setLiked] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const heartIcon = liked ? "heart" : "hearto";
   const heartColor = liked ? "red" : "white";
   const scaleValue = new Animated.Value(1);
+  const videoRef = useRef(null);
 
   const handleHeartClick = () => {
     setLiked(!liked);
@@ -31,19 +34,53 @@ const VideoScreen = () => {
     ]).start();
   };
 
+  const handleVideoPress = () => {
+    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      videoRef.current.pauseAsync();
+    } else {
+      videoRef.current.playAsync();
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        if (videoRef.current) {
+          videoRef.current.pauseAsync();
+        }
+      };
+    }, [])
+  );
+
   return (
     <View style={styles.container}>
       <Video
+        ref={videoRef}
         source={{ uri: "https://www.w3schools.com/html/mov_bbb.mp4" }}
         rate={1.0}
         volume={1.0}
         isMuted={false}
         resizeMode="cover"
-        shouldPlay
+        shouldPlay={isPlaying}
         isLooping
         style={styles.video}
       />
-      <View style={styles.buttonContainer}>
+      <TouchableOpacity
+        style={styles.buttonContainer}
+        onPress={handleVideoPress}
+      >
+        {isPlaying ? (
+          <View style={styles.playButton}>
+            <AntDesign name="pause" size={32} color="white" />
+          </View>
+        ) : (
+          <View style={styles.playButton}>
+            <AntDesign name="play" size={32} color="white" />
+          </View>
+        )}
+      </TouchableOpacity>
+      <View style={styles.iconContainer}>
         <TouchableOpacity style={styles.button} onPress={handleHeartClick}>
           <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
             <AntDesign name={heartIcon} size={32} color={heartColor} />
@@ -68,18 +105,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   video: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    width: "100%",
+    height: "100%",
   },
   buttonContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  playButton: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    borderRadius: 32,
+    padding: 8,
+  },
+  iconContainer: {
     position: "absolute",
     right: 10,
     bottom: 100,
+    flexDirection: "column",
     justifyContent: "space-between",
-    height: 200,
   },
   button: {
     marginBottom: 20,
