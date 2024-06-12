@@ -1,9 +1,36 @@
-import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Easing,
+} from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 
 const VideoScreen = () => {
+  const [liked, setLiked] = useState(false);
+  const heartIcon = liked ? "heart" : "hearto";
+  const heartColor = liked ? "red" : "white";
+  const scaleValue = new Animated.Value(1);
+
+  const handleHeartClick = () => {
+    setLiked(!liked);
+    Animated.sequence([
+      Animated.timing(scaleValue, {
+        toValue: 1.5,
+        duration: 100,
+        easing: Easing.linear,
+      }),
+      Animated.timing(scaleValue, {
+        toValue: 1,
+        duration: 100,
+        easing: Easing.linear,
+      }),
+    ]).start();
+  };
+
   return (
     <View style={styles.container}>
       <Video
@@ -17,8 +44,10 @@ const VideoScreen = () => {
         style={styles.video}
       />
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
-          <AntDesign name="hearto" size={32} color="white" />
+        <TouchableOpacity style={styles.button} onPress={handleHeartClick}>
+          <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+            <AntDesign name={heartIcon} size={32} color={heartColor} />
+          </Animated.View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
           <Ionicons name="chatbubble-ellipses-outline" size={32} color="#fff" />
