@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
+  ScrollView,
 } from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
@@ -14,12 +15,13 @@ import { videos } from "../data/videos";
 const VideoScreen = () => {
   const [liked, setLiked] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [showControls, setShowControls] = useState(true);
   const heartIcon = liked ? "heart" : "hearto";
   const heartColor = liked ? "red" : "white";
   const scaleValue = new Animated.Value(1);
   const videoRef = useRef(null);
 
-  const [currentVideo, setCurrentVideo] = useState(videos[0]);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   const handleHeartClick = () => {
     setLiked(!liked);
@@ -28,6 +30,7 @@ const VideoScreen = () => {
         toValue: 1.5,
         duration: 100,
         easing: Easing.linear,
+        useNativeDriver: true,
       }),
       Animated.timing(scaleValue, {
         toValue: 1,
@@ -44,6 +47,22 @@ const VideoScreen = () => {
     } else {
       videoRef.current.playAsync();
     }
+    setShowControls(false);
+  };
+
+  const handleScroll = (event) => {
+    const contentOffsetY = event.nativeEvent.contentOffset.y;
+    if (contentOffsetY === 0) {
+      // Scroll top
+      setCurrentVideoIndex((prevIndex) =>
+        prevIndex === 0 ? videos.length - 1 : prevIndex - 1
+      );
+    } else {
+      // Scroll bottom
+      setCurrentVideoIndex((prevIndex) =>
+        prevIndex === videos.length - 1 ? 0 : prevIndex + 1
+      );
+    }
   };
 
   useFocusEffect(
@@ -58,31 +77,40 @@ const VideoScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Video
-        ref={videoRef}
-        source={{ uri: currentVideo }}
-        rate={1.0}
-        volume={1.0}
-        isMuted={false}
-        resizeMode="cover"
-        shouldPlay={isPlaying}
-        isLooping
-        style={styles.video}
-      />
-      <TouchableOpacity
-        style={styles.buttonContainer}
-        onPress={handleVideoPress}
+      <ScrollView
+        style={styles.videoContainer}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
-        {isPlaying ? (
-          <View style={styles.playButton}>
-            <AntDesign name="pause" size={32} color="white" />
-          </View>
-        ) : (
-          <View style={styles.playButton}>
-            <AntDesign name="play" size={32} color="white" />
-          </View>
-        )}
-      </TouchableOpacity>
+        <Video
+          ref={videoRef}
+          source={{ uri: videos[0] }}
+          rate={1.0}
+          volume={1.0}
+          isMuted={false}
+          resizeMode="cover"
+          shouldPlay={isPlaying}
+          isLooping
+          style={styles.video}
+          onTouchStart={() => setShowControls(true)}
+        />
+      </ScrollView>
+      {showControls && (
+        <TouchableOpacity
+          style={styles.buttonContainer}
+          onPress={handleVideoPress}
+        >
+          {isPlaying ? (
+            <View style={styles.playButton}>
+              <AntDesign name="pause" size={32} color="white" />
+            </View>
+          ) : (
+            <View style={styles.playButton}>
+              <AntDesign name="play" size={32} color="white" />
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
       <View style={styles.iconContainer}>
         <TouchableOpacity style={styles.button} onPress={handleHeartClick}>
           <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
@@ -106,6 +134,11 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     justifyContent: "center",
     alignItems: "center",
+  },
+  videoContainer: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
   },
   video: {
     width: "100%",
