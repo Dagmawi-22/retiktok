@@ -1,4 +1,3 @@
-// App.js
 import { registerRootComponent } from "expo";
 import { ExpoRouter } from "expo-router";
 
