@@ -1,4 +1,5 @@
 // app/_layout.js
+import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -25,7 +26,11 @@ const Layout = () => {
         inactiveTintColor: "gray",
         showLabel: false,
       }}
-    />
+    >
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="video" />
+      <Tabs.Screen name="profile" />
+    </Tabs>
   );
 };
 
