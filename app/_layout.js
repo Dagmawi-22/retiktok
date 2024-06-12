@@ -1,3 +1,4 @@
+// app/_layout.js
 import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,11 +11,11 @@ const Layout = () => {
           let iconName;
 
           if (route.name === "index") {
-            iconName = "home";
+            iconName = "home-outline";
           } else if (route.name === "video") {
-            iconName = "play-circle";
+            iconName = "play-circle-outline";
           } else if (route.name === "profile") {
-            iconName = "person";
+            iconName = "person-outline";
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -22,7 +23,11 @@ const Layout = () => {
         tabBarActiveTintColor: "green",
         tabBarInactiveTintColor: "gray",
         tabBarShowLabel: false,
-        tabBarStyle: { backgroundColor: "#000" },
+        tabBarStyle: {
+          backgroundColor: "#000",
+          shadowOpacity: 0,
+          elevation: 0,
+        },
       })}
     >
       <Tabs.Screen name="index" />

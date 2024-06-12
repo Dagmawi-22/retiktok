@@ -1,3 +1,5 @@
+// app/video.js
+
 import React, { useState, useRef } from "react";
 import {
   View,
@@ -5,12 +7,12 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
+  PanResponder,
 } from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { videos } from "../data/videos";
-import { PanGestureHandler, State } from "react-native-gesture-handler";
 
 const VideoScreen = () => {
   const [liked, setLiked] = useState(false);
@@ -21,23 +23,31 @@ const VideoScreen = () => {
   const scaleValue = new Animated.Value(1);
   const videoRef = useRef(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [pan] = useState(new Animated.ValueXY());
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: Animated.event([null, { dy: pan.y }], {
+        useNativeDriver: false,
+      }),
+      onPanResponderRelease: (e, gestureState) => {
+        if (gestureState.dy > 50) {
+          handlePreviousVideo();
+        } else if (gestureState.dy < -50) {
+          handleNextVideo();
+        }
+        Animated.spring(pan, {
+          toValue: { x: 0, y: 0 },
+          useNativeDriver: false,
+        }).start();
+      },
+    })
+  ).current;
 
   const handleHeartClick = () => {
     setLiked(!liked);
-    Animated.sequence([
-      Animated.timing(scaleValue, {
-        toValue: 1.5,
-        duration: 100,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleValue, {
-        toValue: 1,
-        duration: 100,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    alert("yeye");
   };
 
   const handleNextVideo = () => {
@@ -46,7 +56,7 @@ const VideoScreen = () => {
     );
   };
 
-  const handlePrevVideo = () => {
+  const handlePreviousVideo = () => {
     setCurrentVideoIndex((prevIndex) =>
       prevIndex === 0 ? videos.length - 1 : prevIndex - 1
     );
@@ -72,66 +82,50 @@ const VideoScreen = () => {
     }, [])
   );
 
-  const onHandlerStateChange = (event) => {
-    if (event.nativeEvent.state === State.END) {
-      if (event.nativeEvent.translationY > 50) {
-        handlePrevVideo();
-      } else if (event.nativeEvent.translationY < -50) {
-        handleNextVideo();
-      }
-    }
-  };
-
   return (
-    <PanGestureHandler onHandlerStateChange={onHandlerStateChange}>
-      <View style={styles.container}>
-        <Video
-          ref={videoRef}
-          source={videos[currentVideoIndex]}
-          rate={1.0}
-          volume={1.0}
-          isMuted={false}
-          resizeMode="cover"
-          shouldPlay={isPlaying}
-          isLooping
-          style={styles.video}
-          onTouchStart={() => setShowControls(true)}
-        />
-        {showControls && (
-          <TouchableOpacity
-            style={styles.buttonContainer}
-            onPress={handleVideoPress}
-          >
-            {isPlaying ? (
-              <View style={styles.playButton}>
-                <AntDesign name="pause" size={32} color="#000" />
-              </View>
-            ) : (
-              <View style={styles.playButton}>
-                <AntDesign name="play" size={32} color="#000" />
-              </View>
-            )}
-          </TouchableOpacity>
-        )}
-        <View style={styles.iconContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleHeartClick}>
-            <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-              <AntDesign name={heartIcon} size={32} color={heartColor} />
-            </Animated.View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Ionicons
-              name="chatbubble-ellipses-outline"
-              size={32}
-              color="#fff"
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Ionicons name="share-social" size={32} color="white" />
-          </TouchableOpacity>
-        </View>
+    <View style={styles.container} {...panResponder.panHandlers}>
+      <Video
+        ref={videoRef}
+        source={{ uri: videos[currentVideoIndex] }}
+        rate={1.0}
+        volume={1.0}
+        isMuted={false}
+        resizeMode="cover"
+        shouldPlay={isPlaying}
+        isLooping
+        style={styles.video}
+        onTouchStart={() => setShowControls(true)}
+      />
+      {showControls && (
+        <TouchableOpacity
+          style={styles.buttonContainer}
+          onPress={handleVideoPress}
+        >
+          {isPlaying ? (
+            <View style={styles.playButton}>
+              <AntDesign name="pause" size={32} color="#fff" />
+            </View>
+          ) : (
+            <View style={styles.playButton}>
+              <AntDesign name="play" size={32} color="#fff" />
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
+      <View style={styles.iconContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleHeartClick}>
+          <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+            <AntDesign name={heartIcon} size={32} color={heartColor} />
+          </Animated.View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Ionicons name="chatbubble-ellipses-outline" size={32} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Ionicons name="share-social" size={32} color="white" />
+        </TouchableOpacity>
       </View>
-    </PanGestureHandler>
+    </View>
   );
 };
 
