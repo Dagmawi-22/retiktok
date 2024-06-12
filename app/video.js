@@ -1,17 +1,16 @@
 // app/video.js
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
   TouchableOpacity,
-  Animated,
-  Easing,
   PanResponder,
+  Animated,
 } from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import { videos } from "../data/videos";
 
 const VideoScreen = () => {
@@ -20,10 +19,9 @@ const VideoScreen = () => {
   const [showControls, setShowControls] = useState(true);
   const heartIcon = liked ? "heart" : "hearto";
   const heartColor = liked ? "red" : "#fff";
-  const scaleValue = new Animated.Value(1);
   const videoRef = useRef(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [pan] = useState(new Animated.ValueXY());
+  const pan = useRef(new Animated.ValueXY()).current;
 
   const panResponder = useRef(
     PanResponder.create({
@@ -47,7 +45,6 @@ const VideoScreen = () => {
 
   const handleHeartClick = () => {
     setLiked(!liked);
-    alert("yeye");
   };
 
   const handleNextVideo = () => {
@@ -82,6 +79,16 @@ const VideoScreen = () => {
     }, [])
   );
 
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.loadAsync(
+        { uri: videos[currentVideoIndex] },
+        { shouldPlay: isPlaying },
+        false
+      );
+    }
+  }, [currentVideoIndex]);
+
   return (
     <View style={styles.container} {...panResponder.panHandlers}>
       <Video
@@ -114,9 +121,7 @@ const VideoScreen = () => {
       )}
       <View style={styles.iconContainer}>
         <TouchableOpacity style={styles.button} onPress={handleHeartClick}>
-          <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-            <AntDesign name={heartIcon} size={32} color={heartColor} />
-          </Animated.View>
+          <AntDesign name={heartIcon} size={32} color={heartColor} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
           <Ionicons name="chatbubble-ellipses-outline" size={32} color="#fff" />
