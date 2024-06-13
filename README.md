@@ -24,6 +24,8 @@ Make sure you have the following installed:
 - Node.js
 - npm or yarn
 - Expo CLI (if not installed, you can install it globally using npm or yarn)
+- expo-go app on your phone
+  
 
 ### Clone the Repository
 
@@ -33,5 +35,8 @@ First, clone this repository to your local machine:
 git clone https://github.com/Dagmawi-22/retiktok.git
 yarn install
 npx expo start -c --tunnel
+```
 
-## tunnel mode is highly recommended to start
+## tunnel mode is highly recommended to start as LAN mode often interrupts
+
+## finally scan the QR code in terminal window with your expo-go mobile app & look through. Thanks!
