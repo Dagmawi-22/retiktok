@@ -13,5 +13,21 @@
 - expo-av - for playing videos
 
 # How to Run
-
   
+# How to Run
+
+To run this project locally on your machine, follow these steps:
+
+### Prerequisites
+
+Make sure you have the following installed:
+- Node.js
+- npm or yarn
+- Expo CLI (if not installed, you can install it globally using npm or yarn)
+
+### Clone the Repository
+
+First, clone this repository to your local machine:
+
+```bash
+git clone https://github.com/Dagmawi-22/retiktok.git
