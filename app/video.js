@@ -9,9 +9,9 @@ import {
   Image,
 } from "react-native";
 import { Video } from "expo-av";
-import * as VideoThumbnails from "expo-video-thumbnails";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import * as VideoThumbnails from "expo-video-thumbnails";
 import { videos } from "../data/videos";
 
 const screenHeight = Dimensions.get("window").height;
@@ -21,9 +21,9 @@ const VideoScreen = () => {
   const [liked, setLiked] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showControls, setShowControls] = useState(true);
-  const [thumbnail, setThumbnail] = useState(null);
   const videoRef = useRef(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [thumbnail, setThumbnail] = useState(null);
   const pan = useRef(new Animated.ValueXY()).current;
   const scaleValue = useRef(new Animated.Value(1)).current;
 
@@ -150,7 +150,21 @@ const VideoScreen = () => {
         />
       </View>
       {thumbnail && (
-        <Image source={{ uri: thumbnail }} style={styles.thumbnail} />
+        <View style={styles.thumbnailWrapper}>
+          <Image source={{ uri: thumbnail }} style={styles.thumbnail} />
+          <View style={styles.thumbnailOverlay}>
+            <Video
+              source={{ uri: videos[currentVideoIndex].uri }}
+              rate={1.0}
+              volume={1.0}
+              isMuted={true}
+              resizeMode="cover"
+              shouldPlay={isPlaying}
+              isLooping
+              style={styles.overlayVideo}
+            />
+          </View>
+        </View>
       )}
       {showControls && (
         <TouchableOpacity
@@ -202,20 +216,41 @@ const styles = StyleSheet.create({
   },
   landscapeWrapper: {
     width: "100%",
-    height: screenHeight / 2,
+    height: "50%",
     justifyContent: "center",
+    alignItems: "center",
   },
   video: {
     width: "100%",
     height: "100%",
   },
   landscapeVideo: {
-    width: screenWidth,
-    height: screenHeight / 2,
+    width: "100%",
+    height: "50%",
+  },
+  thumbnailWrapper: {
+    position: "absolute",
+    top: "0%",
+    width: "100%",
+    height: "100%",
   },
   thumbnail: {
     width: "100%",
-    height: screenHeight / 2,
+    opacity: 0.6,
+    height: screenHeight,
+  },
+  thumbnailOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlayVideo: {
+    width: "100%",
+    height: "50%",
   },
   buttonContainer: {
     ...StyleSheet.absoluteFillObject,
