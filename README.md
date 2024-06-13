@@ -33,10 +33,16 @@ First, clone this repository to your local machine:
 
 ```bash
 git clone https://github.com/Dagmawi-22/retiktok.git
+```
+Then, install the required libraries:
+```bash
 yarn install
+```
+Finally, start the app:
+```bash
 npx expo start -c --tunnel
 ```
 
-## tunnel mode is highly recommended to start as LAN mode often interrupts
+## tunnel mode is highly recommended to start as LAN mode often interrupts & make sure you installed @expo/ngrok library for tunnel mode to work
 
 ## finally scan the QR code in terminal window with your expo-go mobile app & look through. Thanks!
