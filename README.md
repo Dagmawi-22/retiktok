@@ -8,6 +8,7 @@
 - PanResponder from react-native - for handling the swipe up/bottom actions & switching videos
 - Animated from react-native - for providing an animated style exchange for components
 - expo-av - for playing videos
+- expo-video-thumbnails - to generate thumbnails for videos 
 
 # How to Run
 
