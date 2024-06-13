@@ -2,26 +2,21 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
-  TouchableOpacity,
   PanResponder,
   Animated,
   Dimensions,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import { videos } from "../data/videos";
-import { styles } from "./styles/style";
 
 const screenHeight = Dimensions.get("window").height;
-const screenWidth = Dimensions.get("window").width;
 
 const VideoScreen = () => {
-  const [liked, setLiked] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [showControls, setShowControls] = useState(true);
   const videoRef = useRef(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [thumbnail, setThumbnail] = useState(null);
@@ -48,22 +43,6 @@ const VideoScreen = () => {
     })
   ).current;
 
-  const handleHeartClick = () => {
-    setLiked((prevLiked) => !prevLiked);
-    Animated.sequence([
-      Animated.timing(scaleValue, {
-        toValue: 1.5,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleValue, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
   const handleNextVideo = () => {
     setCurrentVideoIndex((prevIndex) =>
       prevIndex === videos.length - 1 ? 0 : prevIndex + 1
@@ -74,18 +53,6 @@ const VideoScreen = () => {
     setCurrentVideoIndex((prevIndex) =>
       prevIndex === 0 ? videos.length - 1 : prevIndex - 1
     );
-  };
-
-  const handleVideoPress = () => {
-    setIsPlaying((prevPlaying) => {
-      if (prevPlaying) {
-        videoRef.current.pauseAsync();
-      } else {
-        videoRef.current.playAsync();
-      }
-      return !prevPlaying;
-    });
-    setShowControls(false);
   };
 
   const generateThumbnail = async (videoUri) => {
@@ -113,7 +80,7 @@ const VideoScreen = () => {
     if (videoRef.current) {
       videoRef.current.loadAsync(
         { uri: videos[currentVideoIndex].uri },
-        { shouldPlay: isPlaying },
+        { shouldPlay: true },
         false
       );
     }
@@ -123,6 +90,21 @@ const VideoScreen = () => {
       setThumbnail(null);
     }
   }, [currentVideoIndex]);
+
+  const handleHeartClick = () => {
+    Animated.sequence([
+      Animated.timing(scaleValue, {
+        toValue: 1.5,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleValue, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   return (
     <View style={styles.container} {...panResponder.panHandlers}>
@@ -140,14 +122,13 @@ const VideoScreen = () => {
           volume={1.0}
           isMuted={false}
           resizeMode="cover"
-          shouldPlay={isPlaying}
+          shouldPlay={true}
           isLooping
           style={
             videos[currentVideoIndex].isLandscape
               ? styles.landscapeVideo
               : styles.video
           }
-          onTouchStart={() => setShowControls(true)}
         />
       </View>
       {thumbnail && (
@@ -160,37 +141,17 @@ const VideoScreen = () => {
               volume={1.0}
               isMuted={true}
               resizeMode="cover"
-              shouldPlay={isPlaying}
+              shouldPlay={true}
               isLooping
               style={styles.overlayVideo}
             />
           </View>
         </View>
       )}
-      {showControls && (
-        <TouchableOpacity
-          style={styles.buttonContainer}
-          onPress={handleVideoPress}
-        >
-          {isPlaying ? (
-            <View style={styles.playButton}>
-              <AntDesign name="pause" size={32} color="#fff" />
-            </View>
-          ) : (
-            <View style={styles.playButton}>
-              <AntDesign name="play" size={32} color="#fff" />
-            </View>
-          )}
-        </TouchableOpacity>
-      )}
       <View style={styles.iconContainer}>
         <TouchableOpacity style={styles.button} onPress={handleHeartClick}>
           <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-            <AntDesign
-              name={liked ? "heart" : "hearto"}
-              size={32}
-              color={liked ? "red" : "#fff"}
-            />
+            <AntDesign name="hearto" size={32} color="#fff" />
           </Animated.View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
@@ -203,5 +164,66 @@ const VideoScreen = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "black",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullScreen: {
+    width: "100%",
+    height: "100%",
+  },
+  landscapeWrapper: {
+    width: "100%",
+    height: "50%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  video: {
+    width: "100%",
+    height: "100%",
+  },
+  landscapeVideo: {
+    width: "100%",
+    height: "50%",
+  },
+  thumbnailWrapper: {
+    position: "absolute",
+    top: "0%",
+    width: "100%",
+    height: "100%",
+  },
+  thumbnail: {
+    width: "100%",
+    opacity: 0.5,
+    height: screenHeight,
+  },
+  thumbnailOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlayVideo: {
+    width: "100%",
+    height: "50%",
+  },
+  iconContainer: {
+    position: "absolute",
+    right: 10,
+    bottom: 100,
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  button: {
+    marginBottom: 20,
+  },
+});
 
 export default VideoScreen;

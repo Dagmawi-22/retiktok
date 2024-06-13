@@ -1,4 +1,3 @@
-// app/_layout.js
 import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -26,7 +25,10 @@ const Layout = () => {
         tabBarStyle: {
           backgroundColor: "#000",
           shadowOpacity: 0,
-          elevation: 0,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          paddingHorizontal: 5,
+          width: "125%",
         },
       })}
     >
