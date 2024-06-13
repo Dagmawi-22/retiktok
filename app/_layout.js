@@ -28,7 +28,7 @@ const Layout = () => {
           flexDirection: "row",
           justifyContent: "space-between",
           paddingHorizontal: 5,
-          width: "125%",
+          width: "100%",
         },
       })}
     >
