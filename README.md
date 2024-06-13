@@ -13,8 +13,7 @@
 - expo-av - for playing videos
 
 # How to Run
-  
-# How to Run
+
 
 To run this project locally on your machine, follow these steps:
 
