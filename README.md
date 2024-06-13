@@ -10,4 +10,8 @@
 - expo-router from expo - for file based and easy routing between the screens in the app
 - PanResponder from react-native - for handling the swipe up/bottom actions & switching videos
 - Animated from react-native - for providing an animated style exchange for components
+- expo-av - for playing videos
+
+# How to Run
+
   
