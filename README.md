@@ -32,7 +32,7 @@ git clone https://github.com/Dagmawi-22/retiktok.git
 then, cd into the repository folder:
 
 ```bash
-cd retiktokt
+cd retiktok
 ```
 Then, install the required libraries:
 ```bash
