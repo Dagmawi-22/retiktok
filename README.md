@@ -26,9 +26,13 @@ Make sure you have the following installed:
 ### Clone the Repository
 
 First, clone this repository to your local machine:
-
 ```bash
 git clone https://github.com/Dagmawi-22/retiktok.git
+```
+then, cd into the repository folder:
+
+```bash
+cd retiktokt
 ```
 Then, install the required libraries:
 ```bash
