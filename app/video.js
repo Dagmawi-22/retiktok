@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
-  PanResponder,
+  FlatList,
   Animated,
   Image,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
@@ -17,39 +18,20 @@ const VideoScreen = () => {
   const videoRef = useRef(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [thumbnail, setThumbnail] = useState(null);
-  const pan = useRef(new Animated.ValueXY()).current;
   const scaleValue = useRef(new Animated.Value(1)).current;
+  const windowHeight = Dimensions.get("window").height;
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: Animated.event([null, { dy: pan.y }], {
-        useNativeDriver: false,
-      }),
-      onPanResponderRelease: (e, gestureState) => {
-        if (gestureState.dy > 50) {
-          handlePreviousVideo();
-        } else if (gestureState.dy < -50) {
-          handleNextVideo();
-        }
-        Animated.spring(pan, {
-          toValue: { x: 0, y: 0 },
-          useNativeDriver: false,
-        }).start();
-      },
-    })
-  ).current;
-
-  const handleNextVideo = () => {
-    setCurrentVideoIndex((prevIndex) =>
-      prevIndex === videos.length - 1 ? 0 : prevIndex + 1
-    );
+  const handleViewableItemsChanged = ({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+      const index = viewableItems[0].index;
+      if (index !== currentVideoIndex) {
+        setCurrentVideoIndex(index);
+      }
+    }
   };
 
-  const handlePreviousVideo = () => {
-    setCurrentVideoIndex((prevIndex) =>
-      prevIndex === 0 ? videos.length - 1 : prevIndex - 1
-    );
+  const viewabilityConfig = {
+    itemVisiblePercentThreshold: 50,
   };
 
   const generateThumbnail = async (videoUri) => {
@@ -88,37 +70,30 @@ const VideoScreen = () => {
     }
   }, [currentVideoIndex]);
 
-  return (
-    <View style={styles.container} {...panResponder.panHandlers}>
-      <View
-        style={
-          videos[currentVideoIndex].isLandscape
-            ? styles.landscapeWrapper
-            : styles.fullScreen
-        }
-      >
-        <Video
-          ref={videoRef}
-          source={{ uri: videos[currentVideoIndex].uri }}
-          rate={1.0}
-          volume={1.0}
-          isMuted={false}
-          resizeMode="cover"
-          shouldPlay={true}
-          isLooping
-          style={
-            videos[currentVideoIndex].isLandscape
-              ? styles.landscapeVideo
-              : styles.video
-          }
-        />
-      </View>
-      {thumbnail && (
+  const renderItem = ({ item }) => (
+    <View
+      style={[
+        item.isLandscape ? styles.landscapeWrapper : styles.fullScreen,
+        { height: windowHeight },
+      ]}
+    >
+      <Video
+        ref={videoRef}
+        source={{ uri: item.uri }}
+        rate={1.0}
+        volume={1.0}
+        isMuted={false}
+        resizeMode="cover"
+        shouldPlay={true}
+        isLooping
+        style={item.isLandscape ? styles.landscapeVideo : styles.video}
+      />
+      {item.isLandscape && thumbnail && (
         <View style={styles.thumbnailWrapper}>
           <Image source={{ uri: thumbnail }} style={styles.thumbnail} />
           <View style={styles.thumbnailOverlay}>
             <Video
-              source={{ uri: videos[currentVideoIndex].uri }}
+              source={{ uri: item.uri }}
               rate={1.0}
               volume={1.0}
               isMuted={true}
@@ -144,6 +119,19 @@ const VideoScreen = () => {
         </TouchableOpacity>
       </View>
     </View>
+  );
+
+  return (
+    <FlatList
+      data={videos}
+      renderItem={renderItem}
+      keyExtractor={(item, index) => index.toString()}
+      pagingEnabled
+      onViewableItemsChanged={handleViewableItemsChanged}
+      viewabilityConfig={viewabilityConfig}
+      horizontal={false}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 

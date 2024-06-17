@@ -1,6 +1,7 @@
 import { Dimensions, StyleSheet } from "react-native";
 
 const screenHeight = Dimensions.get("window").height;
+const screenWidth = Dimensions.get("window").width;
 
 export const styles = StyleSheet.create({
   container: {
@@ -11,11 +12,11 @@ export const styles = StyleSheet.create({
   },
   fullScreen: {
     width: "100%",
-    height: "100%",
+    height: screenHeight,
   },
   landscapeWrapper: {
     width: "100%",
-    height: "50%",
+    height: screenHeight / 2,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -25,18 +26,18 @@ export const styles = StyleSheet.create({
   },
   landscapeVideo: {
     width: "100%",
-    height: "50%",
+    height: "100%",
   },
   thumbnailWrapper: {
     position: "absolute",
-    top: "0%",
+    top: 0,
     width: "100%",
     height: "100%",
   },
   thumbnail: {
     width: "100%",
+    height: "100%",
     opacity: 0.5,
-    height: screenHeight,
   },
   thumbnailOverlay: {
     position: "absolute",
@@ -48,8 +49,8 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   overlayVideo: {
-    width: "100%",
-    height: "50%",
+    width: screenWidth,
+    height: screenHeight / 2,
   },
   iconContainer: {
     position: "absolute",
