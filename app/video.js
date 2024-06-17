@@ -5,6 +5,7 @@ import {
   Animated,
   Image,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
@@ -18,6 +19,7 @@ const VideoScreen = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [thumbnail, setThumbnail] = useState(null);
   const scaleValue = useRef(new Animated.Value(1)).current;
+  const windowHeight = Dimensions.get("window").height;
 
   const handleViewableItemsChanged = ({ viewableItems }) => {
     if (viewableItems.length > 0) {
@@ -70,7 +72,10 @@ const VideoScreen = () => {
 
   const renderItem = ({ item }) => (
     <View
-      style={item.isLandscape ? styles.landscapeWrapper : styles.fullScreen}
+      style={[
+        item.isLandscape ? styles.landscapeWrapper : styles.fullScreen,
+        { height: windowHeight },
+      ]}
     >
       <Video
         ref={videoRef}
@@ -125,6 +130,7 @@ const VideoScreen = () => {
       onViewableItemsChanged={handleViewableItemsChanged}
       viewabilityConfig={viewabilityConfig}
       horizontal={false}
+      showsVerticalScrollIndicator={false}
     />
   );
 };
