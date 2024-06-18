@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Text,
 } from "react-native";
 import { Video } from "expo-av";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
@@ -18,14 +19,55 @@ const VideoScreen = () => {
   const videoRef = useRef(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [thumbnail, setThumbnail] = useState(null);
+  const [videoDimensions, setVideoDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
   const scaleValue = useRef(new Animated.Value(1)).current;
+  const opacityValue = useRef(new Animated.Value(1)).current;
+  const translateYValue = useRef(new Animated.Value(0)).current;
   const windowHeight = Dimensions.get("window").height;
 
   const handleViewableItemsChanged = ({ viewableItems }) => {
     if (viewableItems.length > 0) {
       const index = viewableItems[0].index;
       if (index !== currentVideoIndex) {
-        setCurrentVideoIndex(index);
+        Animated.parallel([
+          Animated.timing(opacityValue, {
+            toValue: 0.5,
+            duration: 20,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleValue, {
+            toValue: 0.9,
+            duration: 20,
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateYValue, {
+            toValue: 50,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          setCurrentVideoIndex(index);
+          Animated.parallel([
+            Animated.timing(opacityValue, {
+              toValue: 1,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+            Animated.timing(scaleValue, {
+              toValue: 1,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+            Animated.timing(translateYValue, {
+              toValue: 0,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        });
       }
     }
   };
@@ -45,6 +87,17 @@ const VideoScreen = () => {
     }
   };
 
+  const handlePlaybackStatusUpdate = (status) => {
+    if (status.isLoaded && status.videoWidth && status.videoHeight) {
+      setVideoDimensions({
+        width: status.videoWidth,
+        height: status.videoHeight,
+      });
+    } else {
+      console.log("video status is", status);
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       return () => {
@@ -57,24 +110,27 @@ const VideoScreen = () => {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.loadAsync(
-        { uri: videos[currentVideoIndex].uri },
-        { shouldPlay: true },
-        false
-      );
-    }
-    if (videos[currentVideoIndex].isLandscape) {
-      generateThumbnail(videos[currentVideoIndex].uri);
-    } else {
-      setThumbnail(null);
+      videoRef.current
+        .loadAsync(
+          { uri: videos[currentVideoIndex].uri },
+          { shouldPlay: true },
+          false
+        )
+        .then(() => {
+          if (videos[currentVideoIndex].isLandscape) {
+            generateThumbnail(videos[currentVideoIndex].uri);
+          } else {
+            setThumbnail(null);
+          }
+        });
     }
   }, [currentVideoIndex]);
 
   const renderItem = ({ item }) => (
-    <View
+    <Animated.View
       style={[
         item.isLandscape ? styles.landscapeWrapper : styles.fullScreen,
-        { height: windowHeight },
+        { height: windowHeight, opacity: opacityValue },
       ]}
     >
       <Video
@@ -87,6 +143,7 @@ const VideoScreen = () => {
         shouldPlay={true}
         isLooping
         style={item.isLandscape ? styles.landscapeVideo : styles.video}
+        onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
       />
       {item.isLandscape && thumbnail && (
         <View style={styles.thumbnailWrapper}>
@@ -118,7 +175,7 @@ const VideoScreen = () => {
           <Ionicons name="share-social" size={32} color="white" />
         </TouchableOpacity>
       </View>
-    </View>
+    </Animated.View>
   );
 
   return (
