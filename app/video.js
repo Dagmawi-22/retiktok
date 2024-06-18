@@ -25,25 +25,48 @@ const VideoScreen = () => {
   });
   const scaleValue = useRef(new Animated.Value(1)).current;
   const opacityValue = useRef(new Animated.Value(1)).current;
+  const translateYValue = useRef(new Animated.Value(0)).current;
   const windowHeight = Dimensions.get("window").height;
 
   const handleViewableItemsChanged = ({ viewableItems }) => {
     if (viewableItems.length > 0) {
       const index = viewableItems[0].index;
       if (index !== currentVideoIndex) {
-        // fade out
-        Animated.timing(opacityValue, {
-          toValue: 0.5,
-          duration: 10,
-          useNativeDriver: true,
-        }).start(() => {
-          setCurrentVideoIndex(index);
-          // fade in
+        Animated.parallel([
           Animated.timing(opacityValue, {
-            toValue: 1,
-            duration: 10,
+            toValue: 0.5,
+            duration: 20,
             useNativeDriver: true,
-          }).start();
+          }),
+          Animated.timing(scaleValue, {
+            toValue: 0.9,
+            duration: 20,
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateYValue, {
+            toValue: 50,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          setCurrentVideoIndex(index);
+          Animated.parallel([
+            Animated.timing(opacityValue, {
+              toValue: 1,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+            Animated.timing(scaleValue, {
+              toValue: 1,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+            Animated.timing(translateYValue, {
+              toValue: 0,
+              duration: 200,
+              useNativeDriver: true,
+            }),
+          ]).start();
         });
       }
     }
@@ -150,11 +173,6 @@ const VideoScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
           <Ionicons name="share-social" size={32} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={{ color: "#fff" }}>
-            Dimension {videoDimensions.width} x {videoDimensions.height}
-          </Text>
         </TouchableOpacity>
       </View>
     </Animated.View>
