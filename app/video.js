@@ -19,13 +19,27 @@ const VideoScreen = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [thumbnail, setThumbnail] = useState(null);
   const scaleValue = useRef(new Animated.Value(1)).current;
+  const opacityValue = useRef(new Animated.Value(1)).current;
   const windowHeight = Dimensions.get("window").height;
 
   const handleViewableItemsChanged = ({ viewableItems }) => {
     if (viewableItems.length > 0) {
       const index = viewableItems[0].index;
       if (index !== currentVideoIndex) {
-        setCurrentVideoIndex(index);
+        // Start fade out animation
+        Animated.timing(opacityValue, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          setCurrentVideoIndex(index);
+          // Start fade in animation
+          Animated.timing(opacityValue, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }).start();
+        });
       }
     }
   };
@@ -71,10 +85,10 @@ const VideoScreen = () => {
   }, [currentVideoIndex]);
 
   const renderItem = ({ item }) => (
-    <View
+    <Animated.View
       style={[
         item.isLandscape ? styles.landscapeWrapper : styles.fullScreen,
-        { height: windowHeight },
+        { height: windowHeight, opacity: opacityValue },
       ]}
     >
       <Video
@@ -118,7 +132,7 @@ const VideoScreen = () => {
           <Ionicons name="share-social" size={32} color="white" />
         </TouchableOpacity>
       </View>
-    </View>
+    </Animated.View>
   );
 
   return (
